@@ -22,6 +22,8 @@ if not os.path.exists(img_path):
 # === 이미지 로드 및 시각화 ===
 img = mpimg.imread(img_path)
 
+# 한글 폰트 설정 -> 깨짐 방지
+plt.rc('font', family='NanumGothic')
 plt.figure(figsize=(6,6))
 plt.imshow(img)
 plt.axis("off")
