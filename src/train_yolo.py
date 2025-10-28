@@ -1,5 +1,7 @@
 from ultralytics import YOLO
 import torch
+import os
+from pathlib import Path
 
 def train_yolo(
         model:YOLO, data_path,
@@ -45,13 +47,20 @@ def train_yolo(
         save=save,
         save_period=save_period
     )
-
+# 장치 설정
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# 하이퍼파라미터 설정
 opt = "adam"
 LR = 0.001
 BATCH_SIZE = 16
+
+# 모델 불러오기
 model = YOLO("yolov10n.yaml",
             task="detect")  # load a pretrained YOLOv10n model
 
-train_yolo(model=model, lr=LR, optimizer=opt, batch_size=BATCH_SIZE, device=device)
+# 데이터셋 경로 설정
+data_path = str(Path(os.getcwd()) / "data" / "Pill_Detection_yolov8" / "data.yaml")
+
+train_yolo(model=model, data_path=data_path, lr=LR, optimizer=opt, batch_size=BATCH_SIZE, device=device)
 
