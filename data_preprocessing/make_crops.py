@@ -4,10 +4,10 @@ from PIL import Image
 from dotenv import load_dotenv
 
 load_dotenv("config.env")
-DATA_DIR = Path(os.getenv("DATA_DIR"))
-TRAIN_IMAGES_DIR = DATA_DIR / "train_images"
-ANNOT_DIR = DATA_DIR / "train_annotations_pills"
-CROPS_DIR = DATA_DIR / "crops"
+DATA_DIR = Path(os.getenv("DATA_DIR"))              # 학습 데이터 디렉토리 경로
+TRAIN_IMAGES_DIR = DATA_DIR / "train_images"        # 학습 이미지 디렉토리 경로
+ANNOT_DIR = DATA_DIR / "train_annotations_pills"    # 주석(annotations) 디렉토리 경로
+CROPS_DIR = DATA_DIR / "crops"                      # 크롭 이미지 저장 디렉토리 경로
 CROPS_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -20,6 +20,7 @@ def to_png_name(imgfile: str) -> str:
     p = Path(imgfile)
     return f"{p.stem}.png"
 
+# coco bbox를 좌상단, 우하단 좌표로 변환
 def clamp_bbox_to_image(x, y, w, h, width, height):
     # COCO bbox: [x, y, w, h]
     x1 = max(0, int(round(x)))
