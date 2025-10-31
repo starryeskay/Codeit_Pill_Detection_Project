@@ -9,7 +9,6 @@ IMG_DIR   = rf"{ROOT}\train_images"
 ANN_ROOT  = rf"{ROOT}\train_annotations"  # <- 여기를 루트로 재귀 탐색
 OUT_JSON  = rf"{ROOT}\train_annotations_merged.json"
 
-# 
 def load_json(p):
     with open(p, "r", encoding="utf-8") as f:
         return json.load(f)
