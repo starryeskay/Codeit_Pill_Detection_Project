@@ -34,7 +34,7 @@ def main(args):
         weights_path = yolo_train(model_ver=model, data_path=yolo_data_path, config_file_name=yolo_config_file_name)
 
         # 테스트 이미지 예측
-        results = yolo_test_data_prediction(weights_path=weights_path, config_file_name=yolo_config_file_name)
+        results = yolo_test_data_prediction(model_ver=model, weights_path=weights_path, config_file_name=yolo_config_file_name)
 
         class_dict = results[0].names
         # 모델 예측 id -> 실제 카테고리 id 매핑 사전 생성

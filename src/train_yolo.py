@@ -8,7 +8,7 @@ def yolo_train(model_ver:str, data_path:Path, config_file_name:str):
     """
     욜로 모델을 훈련시킵니다.  
     - 입력:
-        - model_ver: YOLO 모델 버전 ('yolov8', 'yolov10n')
+        - model_ver: YOLO 모델 버전 ('yolov8', 'yolov10')
         - data_path: 데이터셋 yaml 파일 경로
         - config_file_name: 하이퍼파라미터 설정 파일 이름
     - 출력:
@@ -66,7 +66,7 @@ def yolo_test_data_prediction(model_ver:str, weights_path:Path, config_file_name
     """
     훈련된 모델로 테스트 이미지를 예측합니다.  
     - 입력:
-        - model_ver: YOLO 모델 버전 ('yolov8', 'yolov10n')
+        - model_ver: YOLO 모델 버전 ('yolov8', 'yolov10')
         - weights_path: 훈련된 모델 가중치 파일 경로
         - config_file_name: 하이퍼파라미터 설정 파일 이름  
     - 출력:

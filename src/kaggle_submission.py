@@ -54,7 +54,11 @@ def yolo_make_submission(
         model_ver:str,
         class_map: dict[int, int] | None = None):
     '''
-    
+    yolo 모델의 예측을 캐글 제출용 csv파일에 양식에 맞추어 저장
+    - 입력
+        - results: YOLO 모델의 예측 결과
+        - model_ver(str): YOLO 모델 버전 ('yolov8', 'yolov10')
+        - class_map(dict): 모델 예측 id -> 실제 카테고리 id 매핑 사전
     '''
     if not results:
         raise RuntimeError(f"No predictions are made.")
@@ -78,7 +82,7 @@ def yolo_make_submission(
             category_id = class_map.get(cls, cls) if class_map else cls
             rows.append([ann_id, img_id, category_id,
                             int(x), int(y), int(ww), int(hh),
-                            round(conf,2)])
+                            round(float(conf), 2)])
             ann_id += 1
 
     out_csv = Path(os.getenv("PROJECT_ROOT")) / f"submission_{model_ver}.csv"
