@@ -1,0 +1,300 @@
+{
+    "categories": [
+    {
+      "id": 1899,
+      "name": "Buspar Tab. 5mg Boryung"
+    },
+    {
+      "id": 10223,
+      "name": "Nexium Tab. 40mg"
+    },
+    {
+      "id": 16550,
+      "name": "Gabapentin Tab. 800mg Dong-A"
+    },
+    {
+      "id": 31704,
+      "name": "Naxozole Tab. 500/20mg"
+    },
+    {
+      "id": 33008,
+      "name": "Shinbaro Tab."
+    },
+    {
+      "id": 16547,
+      "name": "Gabatopa Tab. 100mg"
+    },
+    {
+      "id": 18109,
+      "name": "Lanston LFDT Tab. 30mg"
+    },
+    {
+      "id": 21025,
+      "name": "Pelubi Tab."
+    },
+    {
+      "id": 27925,
+      "name": "Ultracet ER Tab."
+    },
+    {
+      "id": 29344,
+      "name": "Vimovo Tab. 500/20mg"
+    },
+    {
+      "id": 29450,
+      "name": "LAYLA TAB."
+    },
+    {
+      "id": 19606,
+      "name": "Stogar Tab. 10mg"
+    },
+    {
+      "id": 21770,
+      "name": "Rabiet Tab.20mg"
+    },
+    {
+      "id": 24849,
+      "name": "Noltec Tab. "
+    },
+    {
+      "id": 33207,
+      "name": "Eswonamp Tab. 20mg"
+    },
+    {
+      "id": 44198,
+      "name": "K-CAB Tab."
+    },
+    {
+      "id": 2482,
+      "name": "Muteran Cap. 100mg"
+    },
+    {
+      "id": 3742,
+      "name": "Aldrin Tab."
+    },
+    {
+      "id": 4377,
+      "name": "Tylenol Tab. 500mg"
+    },
+    {
+      "id": 6191,
+      "name": "Beecom-CF Tab."
+    },
+    {
+      "id": 12777,
+      "name": "Dabotamin Q Tab."
+    },
+    {
+      "id": 19551,
+      "name": "Truvita Tab."
+    },
+    {
+      "id": 22626,
+      "name": "Mega Power Tab."
+    },
+    {
+      "id": 23222,
+      "name": "Vita B 100 Tab."
+    },
+    {
+      "id": 5885,
+      "name": "Tylenol 8 hours ER Tab."
+    },
+    {
+      "id": 12080,
+      "name": "Lirexpen Tab."
+    },
+    {
+      "id": 13394,
+      "name": "Suspen 8 hours ER Tab."
+    },
+    {
+      "id": 22361,
+      "name": "Maxibupen Er Tab."
+    },
+    {
+      "id": 5093,
+      "name": "Dried Aluminium Hydroxide Gel Tab. Samnam"
+    },
+    {
+      "id": 25437,
+      "name": "Q-Cid Tab."
+    },
+    {
+      "id": 3350,
+      "name": "Hytrin Tab. 2mg Ilyang"
+    },
+    {
+      "id": 3831,
+      "name": "Neuromed Tab. 800mg"
+    },
+    {
+      "id": 16231,
+      "name": "Lipitor Tab. 20mg"
+    },
+    {
+      "id": 16261,
+      "name": "Crestor Tab. 20mg"
+    },
+    {
+      "id": 16687,
+      "name": "Omacor Soft Cap."
+    },
+    {
+      "id": 20237,
+      "name": "Plavix Tab. 75mg"
+    },
+    {
+      "id": 21324,
+      "name": "Atorva Tab. 10mg"
+    },
+    {
+      "id": 22073,
+      "name": "Lipilow Tab. 20mg"
+    },
+    {
+      "id": 29666,
+      "name": "Livalo Tab. 4mg"
+    },
+    {
+      "id": 35205,
+      "name": "Atozet Tab. 10/40mg"
+    },
+    {
+      "id": 36636,
+      "name": "Rosuzet Tab. 10/5mg"
+    },
+    {
+      "id": 38161,
+      "name": "Rosuvamibe Tab. 10/20mg"
+    },
+    {
+      "id": 13899,
+      "name": "Ebixa Tab."
+    },
+    {
+      "id": 18146,
+      "name": "Lyrica Cap. 150mg"
+    },
+    {
+      "id": 18356,
+      "name": "Chongkundang Gliatirin Soft Cap."
+    },
+    {
+      "id": 19231,
+      "name": "Cholinate Soft Cap."
+    },
+    {
+      "id": 20013,
+      "name": "Madopar Tab."
+    },
+    {
+      "id": 31862,
+      "name": "Azilect Tab."
+    },
+    {
+      "id": 32309,
+      "name": "Gliatamin Soft Cap."
+    },
+    {
+      "id": 33879,
+      "name": "Glitin Tab."
+    },
+    {
+      "id": 41767,
+      "name": "Kabalin Cap. 25mg"
+    },
+    {
+      "id": 3482,
+      "name": "Ginexin-F Tab."
+    },
+    {
+      "id": 22346,
+      "name": "Januvia Tab. 50mg"
+    },
+    {
+      "id": 19860,
+      "name": "Norvasc Tab. 5mg"
+    },
+    {
+      "id": 28762,
+      "name": "Trajenta Tab."
+    },
+    {
+      "id": 30307,
+      "name": "Trajenta-duo Tab. 2.5/850mg"
+    },
+    {
+      "id": 31884,
+      "name": "Janumet XR Tab. 100/1000mg"
+    },
+    {
+      "id": 34596,
+      "name": "Zemimet SR Tab. 50/1000mg"
+    },
+    {
+      "id": 20876,
+      "name": "Exforge Tab. 5/160mg"
+    },
+    {
+      "id": 25366,
+      "name": "JANUMET TAB 50/850"
+    },
+    {
+      "id": 25468,
+      "name": "Amosartan Tab 5/100mg"
+    },
+    {
+      "id": 27652,
+      "name": "Sevikar Tab. 10/40mg"
+    },
+    {
+      "id": 27732,
+      "name": "Twynsta Tab. 40/5mg"
+    },
+    {
+      "id": 27776,
+      "name": "Kanarb Tab. 60mg"
+    },
+    {
+      "id": 3543,
+      "name": "Mucosta Tab."
+    },
+    {
+      "id": 10220,
+      "name": "SEROQUEL Tab. 100mg"
+    },
+    {
+      "id": 4542,
+      "name": "Airtal Tab."
+    },
+    {
+      "id": 12246,
+      "name": "Abilify Tab.10mg"
+    },
+    {
+      "id": 12419,
+      "name": "Zyprexa Tab. 2.5mg"
+    },
+    {
+      "id": 23202,
+      "name": "Quetapin Tab. 25mg"
+    },
+    {
+      "id": 27992,
+      "name": "Zoloft Tab. 100mg"
+    },
+    {
+      "id": 29870,
+      "name": "Lexapro Tab. 15mg"
+    },
+    {
+      "id": 33877,
+      "name": "Brintellix Tab. 20mg"
+    },
+    {
+      "id": 6562,
+      "name": "Joins Tab."
+    }
+  ]
+}
