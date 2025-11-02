@@ -21,7 +21,7 @@ def make_class_map(model_class_names:dict):
     class_map = {}  
 
     # 실제 카테고리 id를 담고 있는 json 파일 경로
-    id_json_path = Path(os.getenv("DATA_DIR")) / "original_id.json"
+    id_json_path = Path(os.getenv("ID_DATA_DIR"))
 
     # 모델의 약 클래스별 id 할당 정보({id:name} 형식)
     names = model_class_names

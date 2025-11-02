@@ -7,6 +7,7 @@ from src.kaggle_submission import make_class_map, yolo_make_submission
 
 def main(args):
 
+    # .env 파일에 저장된 폴더 경로 환경변수에 추가
     load_dotenv()
 
     # 모델 설정 (욜로/SSD/Faster RCNN)
@@ -17,7 +18,6 @@ def main(args):
         print(f"Using {model} model and loading yolo format dataset")
         yolo_config_file_name = args.yolo_config
         yolo_data_dir = os.getenv("YOLO_DATA_DIR")
-        print(yolo_data_dir)
         yolo_data_path = Path(yolo_data_dir) / "data.yaml"
 
         # 데이터셋 경로 설정 오류
@@ -32,11 +32,9 @@ def main(args):
         
         # 모델 훈련
         weights_path = yolo_train(model_ver=model, data_path=yolo_data_path, config_file_name=yolo_config_file_name)
-        print("train finished.")
 
         # 테스트 이미지 예측
         results = yolo_test_data_prediction(weights_path=weights_path, config_file_name=yolo_config_file_name)
-        print("prediction finished.")
 
         class_dict = results[0].names
         # 모델 예측 id -> 실제 카테고리 id 매핑 사전 생성
