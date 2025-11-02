@@ -4,3 +4,4 @@
 /data/Pill_Detection_coco/valid
 /data/test/images/*
 /yolo_runs/*
+/src/__pycache__

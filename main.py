@@ -1,10 +1,14 @@
 import os
 from pathlib import Path
 import argparse
+from dotenv import load_dotenv
 from src.train_yolo import yolo_train, yolo_test_data_prediction
 from src.kaggle_submission import make_class_map, yolo_make_submission
 
 def main(args):
+
+    load_dotenv()
+
     # 모델 설정 (욜로/SSD/Faster RCNN)
     model = args.model
 
@@ -13,6 +17,7 @@ def main(args):
         print(f"Using {model} model and loading yolo format dataset")
         yolo_config_file_name = args.yolo_config
         yolo_data_dir = os.getenv("YOLO_DATA_DIR")
+        print(yolo_data_dir)
         yolo_data_path = Path(yolo_data_dir) / "data.yaml"
 
         # 데이터셋 경로 설정 오류
@@ -50,7 +55,7 @@ if __name__ == "__main__":
     print("This is the main module for the Codeit Pill Detection Project.")
     # 커맨드 인자 파싱
     parser = argparse.ArgumentParser(description="Codeit Pill Detection Project")
-    parser.add_argument('--model', type=str, default="yolov8", help='which model to use: yolov8, yolov10, faster-rcnn, ssd')
-    parser.add_argument('--yolo_config', type=str, description='model training / prediction configuration file name', default="default.json")
+    parser.add_argument('--model', type=str, required=True, help='which model to use: yolov8, yolov10, faster-rcnn, ssd')
+    parser.add_argument('--yolo_config', type=str, help='select model training / prediction configuration file in yolo_train_configs folder.', default="default.json")
     args = parser.parse_args()
     main(args)
