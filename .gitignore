@@ -5,3 +5,4 @@
 /data/test/images/*
 /yolo_runs/*
 /src/__pycache__
+/.env
