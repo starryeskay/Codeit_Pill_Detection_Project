@@ -1,10 +1,7 @@
 import os, json, orjson
 from pathlib import Path
 from datetime import datetime
-from collections import defaultdict
-from dotenv import load_dotenv
 
-load_dotenv("config.env")
 DATA_DIR = Path(os.getenv("DATA_DIR"))
 PILLS_DIR = DATA_DIR / "train_annotations"
 ANNOT_DIR = DATA_DIR / "train_annotations_coco"

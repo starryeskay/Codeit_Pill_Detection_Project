@@ -1,10 +1,6 @@
 import os, json, re
 from pathlib import Path
-from datetime import datetime
-from collections import defaultdict
-from dotenv import load_dotenv
 
-load_dotenv("config.env")
 DATA_DIR = Path(os.getenv("DATA_DIR"))
 SRC_JSON = DATA_DIR / "coco_annotations.json"
 OUT_DIR = DATA_DIR / "train_annotations_pills"

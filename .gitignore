@@ -1,8 +1,2 @@
-/data/Pill_Detection_yolov8/train
-/data/Pill_Detection_yolov8/valid
-/data/Pill_Detection_coco/train
-/data/Pill_Detection_coco/valid
-/data/test/images/*
-/yolo_runs/*
 /src/__pycache__
 /.env
