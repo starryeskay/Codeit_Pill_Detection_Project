@@ -16,6 +16,8 @@ PROJECT_ROOT=
 ID_DATA_DIR=
 # YOLO 학습 설정 폴더 경로
 CONFIG_DIR=
+# SSD 학습 설정 폴더 경로
+SSD_DIR= 
 # 욜로 포맷 데이터셋 폴더 경로
 YOLO_DATA_DIR=
 # COCO 포맷 데이터셋 폴더 경로

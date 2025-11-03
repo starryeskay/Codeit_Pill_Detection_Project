@@ -3,7 +3,6 @@ from torch.optim import SGD
 from torch.optim.lr_scheduler import StepLR
 from torchvision.models.detection import ssd300_vgg16
 from torchvision.models.detection.ssd import SSDClassificationHead
-from dotenv import load_dotenv
 from pathlib import Path
 import os
 
@@ -13,7 +12,6 @@ from submit import test_csv
 
 
 def main(DATA_DIR, device, num_epochs=10, size=300):
-    load_dotenv("config.env")
     os.makedirs("weights", exist_ok=True)
 
     train_loader, val_loader, num_classes = get_trainloader(DATA_DIR, batch_size=8, size=300)
@@ -71,7 +69,7 @@ def main(DATA_DIR, device, num_epochs=10, size=300):
     print("Training Finished")
 
 if __name__ == "__main__":
-    DATA_DIR = Path('/content/drive/MyDrive/Codeit/project1')
+    DATA_DIR = Path(os.getenv("SSD_DIR")) 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     main(DATA_DIR, device, num_epochs=20)
 
