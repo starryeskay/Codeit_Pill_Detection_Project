@@ -67,8 +67,9 @@ def main(DATA_DIR, device, num_epochs=10, size=300):
             torch.save(model.state_dict(), "weights/ssd_best.pth")
 
     print("Training Finished")
-
-if __name__ == "__main__":
+    
+    
+def start_ssd():
     DATA_DIR = Path(os.getenv("SSD_DIR")) 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     main(DATA_DIR, device, num_epochs=20)
@@ -78,4 +79,4 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load("weights/ssd_best.pth", map_location=device))
     model = model.to(device)
 
-    df = test_csv(model, DATA_DIR, device, output_csv="test.csv")
+    df = test_csv(model, DATA_DIR, device, output_csv="test.csv")    

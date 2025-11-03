@@ -4,6 +4,7 @@ import argparse
 from dotenv import load_dotenv
 from src.train_yolo import yolo_train, yolo_test_data_prediction
 from src.kaggle_submission import make_class_map, yolo_make_submission
+from src.ssd.main import start_ssd
 
 def main(args):
 
@@ -43,10 +44,13 @@ def main(args):
 
         
     # Faster-RCNN / SSD 모델
-    elif model == "faster-rcnn" or model == "ssd":
+    elif model == "faster-rcnn":
         print(f"Using {model} model and loading COCO format dataset")
+    
+    elif model == "ssd":
+        print(f"Using {model} model and loading COCO format dataset")
+        start_ssd()    
         
-
 
 
 if __name__ == "__main__":
