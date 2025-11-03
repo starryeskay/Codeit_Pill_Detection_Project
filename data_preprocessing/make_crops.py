@@ -1,28 +1,25 @@
 import json, re, os
 from pathlib import Path
 from PIL import Image
-from dotenv import load_dotenv
 
-load_dotenv("config.env")
-DATA_DIR = Path(os.getenv("DATA_DIR"))              # 학습 데이터 디렉토리 경로
-TRAIN_IMAGES_DIR = DATA_DIR / "train_images"        # 학습 이미지 디렉토리 경로
-ANNOT_DIR = DATA_DIR / "train_annotations_pills"    # 주석(annotations) 디렉토리 경로
-CROPS_DIR = DATA_DIR / "crops"                      # 크롭 이미지 저장 디렉토리 경로
+DATA_DIR = Path(os.getenv("SSD_DIR")) 
+DATA_SET = DATA_DIR / 'datasets_balanced/rare/original'
+TRAIN_IMAGES_DIR = DATA_SET / "images" # 크롭할 이미지
+CROPS_DIR = DATA_SET / "crops"
 CROPS_DIR.mkdir(parents=True, exist_ok=True)
 
+COCO_JSON = DATA_SET / "annotations.json" # COCO 형태 annotation 파일
 
+# 안전성을 위해 넣기
 def safe_name(name: str) -> str:
+    
     name = (name or "").strip()
     name = re.sub(r"\s+", "_", name)
     return re.sub(r"[^\w\.-]", "_", name) or "unnamed"
 
-def to_png_name(imgfile: str) -> str:
-    p = Path(imgfile)
-    return f"{p.stem}.png"
-
-# coco bbox를 좌상단, 우하단 좌표로 변환
+# COCO 데이터셋 구조 : [x, y, w, h]
 def clamp_bbox_to_image(x, y, w, h, width, height):
-    # COCO bbox: [x, y, w, h]
+    
     x1 = max(0, int(round(x)))
     y1 = max(0, int(round(y)))
     x2 = min(width,  int(round(x + w)))
@@ -31,58 +28,69 @@ def clamp_bbox_to_image(x, y, w, h, width, height):
         return None
     return (x1, y1, x2, y2)
 
-total_json = total_locs = total_crops = 0
-skipped_missing_img = skipped_bad_bbox = 0
+# annotation 불러오기
+with open(COCO_JSON, "r", encoding="utf-8") as f:
+    coco = json.load(f)
 
-for cat_json in sorted(ANNOT_DIR.glob("*.json")):
-    with open(cat_json, "r", encoding="utf-8") as f:
-        payload = json.load(f)
+images = coco.get("images", [])
+anns   = coco.get("annotations", [])
+cats   = coco.get("categories", [])
 
-    cat_name = (payload.get("file_data") or {}).get("name") or cat_json.stem
-    out_dir = CROPS_DIR / safe_name(cat_name)
+# 빠른 매핑
+id2img = {img["id"]: img for img in images}
+id2cat = {cat["id"]: cat for cat in cats}
+
+total_images = len(images)
+total_annotations = len(anns)
+total_crops = 0
+
+for idx, ann in enumerate(anns):
+    image_id = ann.get("image_id")
+    category_id = ann.get("category_id")
+    bbox = ann.get("bbox")
+
+    if not isinstance(bbox, (list, tuple)) or len(bbox) < 4:
+        continue
+
+    imginfo = id2img.get(image_id)
+    catinfo = id2cat.get(category_id)
+
+    if imginfo is None or catinfo is None:
+        continue
+
+    file_name = imginfo["file_name"]
+    w_img = int(imginfo.get("width", 0))
+    h_img = int(imginfo.get("height", 0))
+
+    # 원본 이미지 경로
+    img_path = TRAIN_IMAGES_DIR / file_name
+    if not img_path.exists():
+        continue
+
+    # 카테고리별 하위 폴더
+    out_dir = CROPS_DIR / safe_name(catinfo.get("name", f"cat_{category_id}"))
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    locations = payload.get("location") or []
-    total_json += 1
+    try:
+        with Image.open(img_path) as im:
+            x, y, w, h = bbox[:4]
+            box = clamp_bbox_to_image(x, y, w, h, w_img or im.size[0], h_img or im.size[1])
+            if box is None:
+                continue
 
-    for idx, loc in enumerate(locations):
-        total_locs += 1
-        imgfile = to_png_name(str(loc.get("imgfile", "")))
-        bbox    = loc.get("bbox")
+            crop = im.crop(box)  # (left, top, right, bottom)
+            x1, y1, x2, y2 = box
 
-        # bbox 기본 검증
-        if not isinstance(bbox, (list, tuple)) or len(bbox) < 4:
-            skipped_bad_bbox += 1
-            continue
+            # 파일명: 원본스테믹스_annoID_idx_x1_y1_x2_y2.png
+            stem = Path(file_name).stem
+            ann_id = ann.get("id", idx)
+            out_name = f"{stem}_{ann_id:06d}_{idx:05d}_{x1}_{y1}_{x2}_{y2}.png"
+            out_path = out_dir / out_name
 
-        # PNG만 사용
-        img_path = TRAIN_IMAGES_DIR / imgfile
-        if not img_path.exists():
-            skipped_missing_img += 1
-            continue
+            crop.save(out_path, format="PNG", optimize=True)
+            total_crops += 1
+    except Exception:
+        continue
 
-        try:
-            with Image.open(img_path) as im:
-                w_img, h_img = im.size
-                x, y, w, h = bbox[:4]
-                box = clamp_bbox_to_image(x, y, w, h, w_img, h_img)
-                if box is None:
-                    skipped_bad_bbox += 1
-                    continue
-
-                crop = im.crop(box)  # (left, top, right, bottom)
-                x1, y1, x2, y2 = box
-                out_name = f"{Path(imgfile).stem}_{idx:05d}_{x1}_{y1}_{x2}_{y2}.png"
-                out_path = out_dir / out_name
-
-                # PNG로 저장
-                crop.save(out_path, format="PNG", optimize=True)
-                total_crops += 1
-        except Exception:
-            skipped_bad_bbox += 1
-            continue
-
-print(f"[완료] JSON: {total_json}개, location: {total_locs}개")
-print(f"[결과] 저장된 크롭: {total_crops}개")
-print(f"[스킵] 이미지 없음: {skipped_missing_img}개, bbox 문제: {skipped_bad_bbox}개")
-print(f"[출력 경로] {CROPS_DIR.resolve()}")
+print(f"images: {total_images}개, annotations: {total_annotations}개")
+print(f"저장된 크롭: {total_crops}개")
