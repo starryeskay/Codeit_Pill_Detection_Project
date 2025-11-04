@@ -58,7 +58,7 @@ def compose_one_image(
     positions_px: List[Tuple[int, int]],
     bank: Dict[str, List[Path]],
     name_to_id: Dict[str, int],
-    scale_range: Tuple[float, float] = (0.9, 1.1),
+    scale_range: Tuple[float, float] = (0.9, 1.0),
     bg_color: Tuple[int, int, int] = (230, 230, 230),
     rng: random.Random = random,
     names_for_slots: Optional[List[str]] = None,   # ★ 추가: 이 순서대로 배치
