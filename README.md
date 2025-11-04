@@ -12,13 +12,13 @@ ORIGINAL_DATA_DIR=
 
 # 프로젝트 폴더 경로
 PROJECT_ROOT=
-# 약 고유 id 저장 파일 경로
+# 구글 드라이브에 있는 약 고유 id(original_id.json) 저장 파일 경로
 ID_DATA_DIR=
-# YOLO 학습 설정 폴더 경로
+# 구글 드라이브에 있는 YOLO 학습 설정 폴더(yolo_train_configs) 경로
 CONFIG_DIR=
 # SSD 학습 설정 폴더 경로
 SSD_DIR= 
-# 욜로 포맷 데이터셋 폴더 경로
+# 욜로 포맷 데이터셋 폴더(Pill_Detection_yolov8) 경로
 YOLO_DATA_DIR=
 # COCO 포맷 데이터셋 폴더 경로
 COCO_DATA_DIR=
