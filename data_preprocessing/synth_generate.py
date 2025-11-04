@@ -58,7 +58,7 @@ def compose_one_image(
     positions_px: List[Tuple[int, int]],
     bank: Dict[str, List[Path]],
     name_to_id: Dict[str, int],
-    scale_range: Tuple[float, float] = (0.95, 1.05),
+    scale_range: Tuple[float, float] = (0.9, 1.1),
     bg_color: Tuple[int, int, int] = (230, 230, 230),
     rng: random.Random = random,
     names_for_slots: Optional[List[str]] = None,   # ★ 추가: 이 순서대로 배치
@@ -376,10 +376,10 @@ def synthesize_dataset_per_category(
 # 6) 실행 예시
 # -----------------------------
 if __name__ == "__main__":
-    DATA_DIR = Path("/content/drive/MyDrive/Codeit/project1/datasets_balanced/rare/original")
+    DATA_DIR = Path("")
     object_bank_dir = DATA_DIR / 'crops_rgba'   # 폴더명=약 이름
     mapping_json    = DATA_DIR / "annotations.json"  # 이름→id 매핑
-    out_root        = Path("/content/drive/MyDrive/Codeit/project1/Final_data")
+    out_root        = Path("")
     out_images_dir  = out_root / "images"
     out_labels_dir  = out_root / "train_labels"
     out_coco_json   = out_root / "annotations_coco.json"

@@ -59,7 +59,7 @@ def set_seed(seed: int = 42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
-def main():
+def start_faster_rcnn():
     args = parse_args()
     set_seed(42)
 
@@ -174,6 +174,3 @@ def main():
     print('학습 완료.')
 
 
-
-if __name__ == '__main__':
-    main()

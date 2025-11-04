@@ -2,6 +2,7 @@ import argparse
 from dotenv import load_dotenv
 from src.ssd.main import start_ssd
 from src.yolo.main import start_yolo
+from src.faster_rcnn.main import start_faster_rcnn
 
 def main(args):
     # .env 파일에 저장된 폴더 경로 환경변수에 추가
@@ -19,7 +20,8 @@ def main(args):
     # Faster-RCNN 모델
     elif model == "faster-rcnn":
         print(f"Using {model} model and loading COCO format dataset")
-
+        start_faster_rcnn()
+    
     # SSD 모델
     elif model == "ssd":
         print(f"Using {model} model and loading COCO format dataset")
