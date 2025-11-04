@@ -1,2 +1,9 @@
 /src/__pycache__
 /.env
+
+dataset/
+runs/
+models/yolo8/
+data_preprocessing/category_id_export.ipynb
+.DS_Store
+data_preprocessing/.DS_Store
