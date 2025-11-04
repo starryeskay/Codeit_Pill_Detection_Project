@@ -58,10 +58,12 @@ def compose_one_image(
     positions_px: List[Tuple[int, int]],
     bank: Dict[str, List[Path]],
     name_to_id: Dict[str, int],
-    scale_range: Tuple[float, float] = (0.95, 1.0),
+    scale_range: Tuple[float, float] = (0.95, 1.05),
     bg_color: Tuple[int, int, int] = (230, 230, 230),
     rng: random.Random = random,
     names_for_slots: Optional[List[str]] = None,   # ★ 추가: 이 순서대로 배치
+    pos_jitter_px: int = 30,       # 위치 오프셋 최대치(±px)
+    pos_jitter_tries: int = 10,    # 위치 오프셋 재시도 횟수
 ):
     """
     positions_px 길이만큼 배치.
@@ -76,9 +78,9 @@ def compose_one_image(
 
     class_names = list(bank.keys())
     
-    MIN_GAP = 10               # 최소 간격(px)
-    MIN_SCALE = 0.9            # 원본의 최소 90%까지 축소 허용
-    SHRINK_FACTOR = 0.92       # 스케일 실패 시 감소 비율(단, MIN_SCALE 아래로는 내려가지 않음)
+    MIN_GAP = 5               # 최소 간격(px)
+    MIN_SCALE = 0.8            # 원본의 최소 80%까지 축소 허용
+    SHRINK_FACTOR = 0.95       # 스케일 실패 시 감소 비율(단, MIN_SCALE 아래로는 내려가지 않음)
     
     # 이미 배치된 bbox들(원래 bbox)을 보관
     placed_bboxes: List[Tuple[int, int, int, int]] = []  # (x, y, w, h)
@@ -182,6 +184,37 @@ def compose_one_image(
                 placed_bboxes.append(candidate)
                 placed = True
                 break
+
+            jitter_ok = False
+            for _ in range(pos_jitter_tries):
+                jx = px + rng.randint(-pos_jitter_px, pos_jitter_px)
+                jy = py + rng.randint(-pos_jitter_px, pos_jitter_px)
+                px_j = min(max(jx, 0), W - new_w)
+                py_j = min(max(jy, 0), H - new_h)
+                bx_j = int(px_j + min_x)
+                by_j = int(py_j + min_y)
+                cand_j = (bx_j, by_j, bw, bh)
+                if not any(intersects_with_gap(cand_j, prev, MIN_GAP) for prev in placed_bboxes):
+                    # 지터 위치에서 성공
+                    if name not in name_to_id:
+                        raise KeyError(f"'{name}'에 해당하는 category_id가 annotations.json에 없습니다.")
+                    canvas.paste(im, (px_j, py_j), im)
+                    category_id = int(name_to_id[name])
+                    xc, yc, ww, hh = xywh_pixels_to_yolo_norm(bx_j, by_j, bw, bh, W, H)
+                    yolo_labels.append((category_id, xc, yc, ww, hh))
+                    coco_anns.append({
+                        "category_id": category_id,
+                        "bbox": [bx_j, by_j, bw, bh],
+                        "area": float(bw * bh)
+                    })
+                    used_names.append(name)
+                    placed_bboxes.append(cand_j)
+                    placed = True
+                    jitter_ok = True
+                    break
+
+            if jitter_ok:
+                break  # while True 탈출(이 슬롯 완료)
             
             # ★ 충돌: 스케일 더 줄이고 재시도 (단, 0.9 미만은 금지)
             next_s = s * SHRINK_FACTOR
@@ -347,7 +380,7 @@ if __name__ == "__main__":
     object_bank_dir = DATA_DIR / 'crops_rgba'   # 폴더명=약 이름
     mapping_json    = DATA_DIR / "annotations.json"  # 이름→id 매핑
     out_root        = Path("/content/drive/MyDrive/Codeit/project1/Final_data")
-    out_images_dir  = out_root / "train_images"
+    out_images_dir  = out_root / "images"
     out_labels_dir  = out_root / "train_labels"
     out_coco_json   = out_root / "annotations_coco.json"
 
