@@ -58,10 +58,12 @@ def compose_one_image(
     positions_px: List[Tuple[int, int]],
     bank: Dict[str, List[Path]],
     name_to_id: Dict[str, int],
-    scale_range: Tuple[float, float] = (0.9, 1.0),
+    scale_range: Tuple[float, float] = (0.9, 1.1),
     bg_color: Tuple[int, int, int] = (230, 230, 230),
     rng: random.Random = random,
     names_for_slots: Optional[List[str]] = None,   # ★ 추가: 이 순서대로 배치
+    pos_jitter_px: int = 30,       # 위치 오프셋 최대치(±px)
+    pos_jitter_tries: int = 10,    # 위치 오프셋 재시도 횟수
 ):
     """
     positions_px 길이만큼 배치.
@@ -75,7 +77,33 @@ def compose_one_image(
     used_names: List[str] = []
 
     class_names = list(bank.keys())
+    
+    MIN_GAP = 5               # 최소 간격(px)
+    MIN_SCALE = 0.8            # 원본의 최소 80%까지 축소 허용
+    SHRINK_FACTOR = 0.95       # 스케일 실패 시 감소 비율(단, MIN_SCALE 아래로는 내려가지 않음)
+    
+    # 이미 배치된 bbox들(원래 bbox)을 보관
+    placed_bboxes: List[Tuple[int, int, int, int]] = []  # (x, y, w, h)
+    
+    def intersects_with_gap(a, b, gap: int) -> bool:
+        """사각형 a,b가 gap만큼 확장했을 때 겹치면 True.
+        a,b: (x, y, w, h) in pixels"""
+        ax1, ay1, aw, ah = a
+        bx1, by1, bw, bh = b
+        ax2, ay2 = ax1 + aw, ay1 + ah
+        bx2, by2 = bx1 + bw, by1 + bh
 
+        # 각각 gap만큼 확장
+        ax1i, ay1i, ax2i, ay2i = ax1 - gap, ay1 - gap, ax2 + gap, ay2 + gap
+        bx1i, by1i, bx2i, by2i = bx1 - gap, by1 - gap, bx2 + gap, by2 + gap
+
+        # 축 정렬 사각형 겹침 검사
+        if ax1i >= bx2i or bx1i >= ax2i:
+            return False
+        if ay1i >= by2i or by1i >= ay2i:
+            return False
+        return True
+    
     # 배치 개수 = positions_px 길이 (슬롯 일부만 써도 됨)
     for i, (px, py) in enumerate(positions_px):
         # 1) 약 이름 선택(강제 or 랜덤)
@@ -94,43 +122,114 @@ def compose_one_image(
         im = Image.open(png_path).convert("RGBA")
 
         # 3) 크기 스케일 & 붙여넣기
-        s = rng.uniform(*scale_range)
-        new_w = max(1, int(im.width * s))
-        new_h = max(1, int(im.height * s))
-        im = im.resize((new_w, new_h), Image.BICUBIC)
+        s = min(max(rng.uniform(*scale_range), MIN_SCALE), max(scale_range))  # 시작 스케일을 범위 내에서, 하한 0.9 보장
+        placed = False
 
-        px_clamped = min(max(px, 0), W - new_w)
-        py_clamped = min(max(py, 0), H - new_h)
+        while True:
+            # 하한 0.9 보장
+            if s < MIN_SCALE: 
+                s = MIN_SCALE
+        
+            new_w = max(1, int(im.width * s))
+            new_h = max(1, int(im.height * s))
+            im = im.resize((new_w, new_h), Image.BICUBIC)
 
-        canvas.paste(im, (px_clamped, py_clamped), im)
+            px_clamped = min(max(px, 0), W - new_w)
+            py_clamped = min(max(py, 0), H - new_h)
 
-        # 4) 알파 기준 bbox
-        alpha = np.array(im.split()[-1])
-        nz = np.argwhere(alpha > 0)
-        if nz.size == 0:
-            continue
-        (min_y, min_x), (max_y, max_x) = nz.min(axis=0), nz.max(axis=0)
-        bw = int(max_x - min_x + 1)
-        bh = int(max_y - min_y + 1)
-        bx = int(px_clamped + min_x)
-        by = int(py_clamped + min_y)
+            
 
-        # 5) 카테고리 id
-        if name not in name_to_id:
-            raise KeyError(f"'{name}'에 해당하는 category_id가 annotations.json에 없습니다.")
-        category_id = int(name_to_id[name])
+            # 4) 알파 기준 bbox
+            alpha = np.array(im.split()[-1])
+            nz = np.argwhere(alpha > 0)
+            if nz.size == 0:
+                # 투명만 있으면 스케일 한 단계 줄여서 재시도 (단, 0.9 아래로는 안내려감)
+                next_s = max(MIN_SCALE, s * SHRINK_FACTOR)
+                # 더 줄일 수 없는 경우(이미 0.9)면 실패 처리
+                if next_s == s:
+                    raise RuntimeError(f"이미지 '{name}'가 완전 투명으로 계산되어 배치할 수 없습니다.")
+                s = next_s
+                continue
+            
+            (min_y, min_x), (max_y, max_x) = nz.min(axis=0), nz.max(axis=0)
+            bw = int(max_x - min_x + 1)
+            bh = int(max_y - min_y + 1)
+            bx = int(px_clamped + min_x)
+            by = int(py_clamped + min_y)
+            
+            candidate = (bx, by, bw, bh)
+            
+            # 기존 배치와 10px 간격 검증
+            conflict = any(intersects_with_gap(candidate, prev, MIN_GAP) for prev in placed_bboxes)
+            
+            if not conflict:
+                canvas.paste(im, (px_clamped, py_clamped), im)
 
-        # 6) YOLO 정규화 좌표
-        xc, yc, ww, hh = xywh_pixels_to_yolo_norm(bx, by, bw, bh, W, H)
-        yolo_labels.append((category_id, xc, yc, ww, hh))
+                # 5) 카테고리 id
+                if name not in name_to_id:
+                    raise KeyError(f"'{name}'에 해당하는 category_id가 annotations.json에 없습니다.")
+                category_id = int(name_to_id[name])
 
-        # 7) COCO bbox
-        coco_anns.append({
-            "category_id": category_id,
-            "bbox": [bx, by, bw, bh],
-            "area": float(bw * bh)
-        })
-        used_names.append(name)
+                # 6) YOLO 정규화 좌표
+                xc, yc, ww, hh = xywh_pixels_to_yolo_norm(bx, by, bw, bh, W, H)
+                yolo_labels.append((category_id, xc, yc, ww, hh))
+
+                # 7) COCO bbox
+                coco_anns.append({
+                    "category_id": category_id,
+                    "bbox": [bx, by, bw, bh],
+                    "area": float(bw * bh)
+                })
+                used_names.append(name)
+                placed_bboxes.append(candidate)
+                placed = True
+                break
+
+            jitter_ok = False
+            for _ in range(pos_jitter_tries):
+                jx = px + rng.randint(-pos_jitter_px, pos_jitter_px)
+                jy = py + rng.randint(-pos_jitter_px, pos_jitter_px)
+                px_j = min(max(jx, 0), W - new_w)
+                py_j = min(max(jy, 0), H - new_h)
+                bx_j = int(px_j + min_x)
+                by_j = int(py_j + min_y)
+                cand_j = (bx_j, by_j, bw, bh)
+                if not any(intersects_with_gap(cand_j, prev, MIN_GAP) for prev in placed_bboxes):
+                    # 지터 위치에서 성공
+                    if name not in name_to_id:
+                        raise KeyError(f"'{name}'에 해당하는 category_id가 annotations.json에 없습니다.")
+                    canvas.paste(im, (px_j, py_j), im)
+                    category_id = int(name_to_id[name])
+                    xc, yc, ww, hh = xywh_pixels_to_yolo_norm(bx_j, by_j, bw, bh, W, H)
+                    yolo_labels.append((category_id, xc, yc, ww, hh))
+                    coco_anns.append({
+                        "category_id": category_id,
+                        "bbox": [bx_j, by_j, bw, bh],
+                        "area": float(bw * bh)
+                    })
+                    used_names.append(name)
+                    placed_bboxes.append(cand_j)
+                    placed = True
+                    jitter_ok = True
+                    break
+
+            if jitter_ok:
+                break  # while True 탈출(이 슬롯 완료)
+            
+            # ★ 충돌: 스케일 더 줄이고 재시도 (단, 0.9 미만은 금지)
+            next_s = s * SHRINK_FACTOR
+            if next_s < MIN_SCALE:
+                # 더 이상 줄일 수 없음 → 요구한 최소 스케일(0.9)에서도 간격 불가
+                # 스킵 없이 에러로 알려줌
+                raise RuntimeError(
+                    f"positions_px 및 오브젝트 크기 조건상 최소 간격 {MIN_GAP}px을 만족할 수 없습니다. "
+                    f"(클래스='{name}', 스케일={s:.3f})\n"
+                    f"- 해결책: positions 간격을 더 띄우거나, 이미지 원본 자체를 더 작게 준비하세요."
+                )
+            s = next_s
+        
+        # placed는 여기서 반드시 True여야 함(위에서 에러를 던지거나 배치됨)
+        assert placed, "논리 오류: placed가 False 상태로 루프를 탈출했습니다."
 
     return canvas.convert("RGB"), yolo_labels, coco_anns, used_names  # ★ used_names 반환
 
@@ -227,7 +326,7 @@ def synthesize_dataset_per_category(
         lbl_name = f"syn_{img_idx:06d}.txt"
         img_path = out_images_dir / img_name
         lbl_path = out_labels_dir / lbl_name
-        img.save(img_path, quality=95)
+        img.save(img_path, optimize=True)
 
         with open(lbl_path, "w", encoding="utf-8") as f:
             for cls, xc, yc, ww, hh in yolo_labels:
@@ -282,7 +381,7 @@ if __name__ == "__main__":
     mapping_json    = DATA_DIR / "annotations.json"  # 이름→id 매핑
     out_root        = Path("")
     out_images_dir  = out_root / "images"
-    out_labels_dir  = out_root / "labels"
+    out_labels_dir  = out_root / "train_labels"
     out_coco_json   = out_root / "annotations_coco.json"
 
     synthesize_dataset_per_category(
