@@ -126,7 +126,7 @@ def compose_one_image(
         placed = False
 
         while True:
-            # 하한 0.9 보장
+            # 하한 0.8 보장
             if s < MIN_SCALE: 
                 s = MIN_SCALE
         
