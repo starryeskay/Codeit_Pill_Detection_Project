@@ -172,7 +172,7 @@ def compose_one_image(
 
                 # 6) YOLO 정규화 좌표
                 xc, yc, ww, hh = xywh_pixels_to_yolo_norm(bx, by, bw, bh, W, H)
-                yolo_labels.append((category_id, xc, yc, ww, hh))
+                yolo_labels.append((category_id - 1, xc, yc, ww, hh))
 
                 # 7) COCO bbox
                 coco_anns.append({
